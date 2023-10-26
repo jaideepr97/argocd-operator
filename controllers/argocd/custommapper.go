@@ -14,7 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func (r *ReconcileArgoCD) clusterResourceMapper(o client.Object) []reconcile.Request {
+func (r *ReconcileArgoCD) clusterResourceMapper(ctx context.Context, o client.Object) []reconcile.Request {
 	crbAnnotations := o.GetAnnotations()
 	namespacedArgoCDObject := client.ObjectKey{}
 
@@ -65,7 +65,7 @@ func isOwnerOfInterest(owner v1.OwnerReference) bool {
 
 // tlsSecretMapper maps a watch event on a secret of type TLS back to the
 // ArgoCD object that we want to reconcile.
-func (r *ReconcileArgoCD) tlsSecretMapper(o client.Object) []reconcile.Request {
+func (r *ReconcileArgoCD) tlsSecretMapper(ctx context.Context, o client.Object) []reconcile.Request {
 	var result = []reconcile.Request{}
 
 	if !isSecretOfInterest(o) {
@@ -127,7 +127,7 @@ func (r *ReconcileArgoCD) tlsSecretMapper(o client.Object) []reconcile.Request {
 
 // namespaceResourceMapper maps a watch event on a namespace, back to the
 // ArgoCD object that we want to reconcile.
-func (r *ReconcileArgoCD) namespaceResourceMapper(o client.Object) []reconcile.Request {
+func (r *ReconcileArgoCD) namespaceResourceMapper(ctx context.Context, o client.Object) []reconcile.Request {
 	var result = []reconcile.Request{}
 
 	labels := o.GetLabels()
@@ -153,3 +153,63 @@ func (r *ReconcileArgoCD) namespaceResourceMapper(o client.Object) []reconcile.R
 
 	return result
 }
+<<<<<<< HEAD
+=======
+
+// clusterSecretResourceMapper maps a watch event on a namespace, back to the
+// ArgoCD object that we want to reconcile.
+func (r *ReconcileArgoCD) clusterSecretResourceMapper(ctx context.Context, o client.Object) []reconcile.Request {
+	var result = []reconcile.Request{}
+
+	labels := o.GetLabels()
+	if v, ok := labels[common.ArgoCDSecretTypeLabel]; ok && v == "cluster" {
+		argocds := &argoproj.ArgoCDList{}
+		if err := r.Client.List(context.TODO(), argocds, &client.ListOptions{Namespace: o.GetNamespace()}); err != nil {
+			return result
+		}
+
+		if len(argocds.Items) != 1 {
+			return result
+		}
+
+		argocd := argocds.Items[0]
+		namespacedName := client.ObjectKey{
+			Name:      argocd.Name,
+			Namespace: argocd.Namespace,
+		}
+		result = []reconcile.Request{
+			{NamespacedName: namespacedName},
+		}
+	}
+
+	return result
+}
+
+// applicationSetSCMTLSConfigMapMapper maps a watch event on a configmap with name "argocd-appset-gitlab-scm-tls-certs-cm",
+// back to the ArgoCD object that we want to reconcile.
+func (r *ReconcileArgoCD) applicationSetSCMTLSConfigMapMapper(ctx context.Context, o client.Object) []reconcile.Request {
+	var result = []reconcile.Request{}
+
+	if o.GetName() == common.ArgoCDAppSetGitlabSCMTLSCertsConfigMapName {
+		argocds := &argoproj.ArgoCDList{}
+		if err := r.Client.List(context.TODO(), argocds, &client.ListOptions{Namespace: o.GetNamespace()}); err != nil {
+			return result
+		}
+
+		if len(argocds.Items) != 1 {
+			return result
+		}
+
+		argocd := argocds.Items[0]
+		namespacedName := client.ObjectKey{
+			Name:      argocd.Name,
+			Namespace: argocd.Namespace,
+		}
+		result = []reconcile.Request{
+			{NamespacedName: namespacedName},
+		}
+	}
+
+	return result
+}
+>>>>>>> c8e4909 (fix: address CVE-2023-39325 (#1022))

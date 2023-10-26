@@ -186,8 +186,12 @@ func (r *ReconcileArgoCD) reconcileRole(name string, policyRules []v1.PolicyRule
 	return roles, nil
 }
 
+<<<<<<< HEAD
 func (r *ReconcileArgoCD) reconcileRoleForApplicationSourceNamespaces(name string, policyRules []v1.PolicyRule, cr *argoprojv1a1.ArgoCD) ([]*v1.Role, error) {
 	var roles []*v1.Role
+=======
+func (r *ReconcileArgoCD) reconcileRoleForApplicationSourceNamespaces(name string, policyRules []v1.PolicyRule, cr *argoproj.ArgoCD) error {
+>>>>>>> c8e4909 (fix: address CVE-2023-39325 (#1022))
 
 	// create policy rules for each source namespace for ArgoCD Server
 	for _, sourceNamespace := range cr.Spec.SourceNamespaces {
@@ -262,7 +266,6 @@ func (r *ReconcileArgoCD) reconcileRoleForApplicationSourceNamespaces(name strin
 				return nil, err
 			}
 		}
-		roles = append(roles, &existingRole)
 
 		if _, ok := r.ManagedSourceNamespaces[sourceNamespace]; !ok {
 			r.ManagedSourceNamespaces[sourceNamespace] = ""

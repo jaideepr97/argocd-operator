@@ -76,7 +76,12 @@ func TestReconcileApplicationSet_CreateDeployments(t *testing.T) {
 	a := makeTestArgoCD()
 	a.Spec.ApplicationSet = &v1alpha1.ArgoCDApplicationSet{}
 
-	r := makeTestReconciler(t, a)
+	resObjs := []client.Object{a}
+	subresObjs := []client.Object{a}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
 
 	sa := corev1.ServiceAccount{}
 
@@ -174,7 +179,12 @@ func TestReconcileApplicationSetProxyConfiguration(t *testing.T) {
 	a := makeTestArgoCD()
 	a.Spec.ApplicationSet = &v1alpha1.ArgoCDApplicationSet{}
 
-	r := makeTestReconciler(t, a)
+	resObjs := []client.Object{a}
+	subresObjs := []client.Object{a}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
 
 	sa := corev1.ServiceAccount{}
 
@@ -244,8 +254,12 @@ func TestReconcileApplicationSet_UpdateExistingDeployments(t *testing.T) {
 		},
 	}
 
-	runtimeObjs := []runtime.Object{a, existingDeployment}
-	r := makeTestReconciler(t, runtimeObjs...)
+	resObjs := []client.Object{a, existingDeployment}
+	subresObjs := []client.Object{a, existingDeployment}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
 
 	sa := corev1.ServiceAccount{}
 
@@ -269,7 +283,12 @@ func TestReconcileApplicationSet_Deployments_resourceRequirements(t *testing.T) 
 	logf.SetLogger(ZapLogger(true))
 	a := makeTestArgoCDWithResources()
 
-	r := makeTestReconciler(t, a)
+	resObjs := []client.Object{a}
+	subresObjs := []client.Object{a}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
 
 	sa := corev1.ServiceAccount{}
 
@@ -356,7 +375,18 @@ func TestReconcileApplicationSet_Deployments_SpecOverride(t *testing.T) {
 			}
 
 			a := makeTestArgoCD()
+<<<<<<< HEAD
 			r := makeTestReconciler(t, a)
+=======
+			resObjs := []client.Object{a}
+			subresObjs := []client.Object{a}
+			runtimeObjs := []runtime.Object{}
+			sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+			cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+			r := makeTestReconciler(cl, sch)
+			cm := newConfigMapWithName(getCAConfigMapName(a), a)
+			r.Client.Create(context.Background(), cm, &client.CreateOptions{})
+>>>>>>> c8e4909 (fix: address CVE-2023-39325 (#1022))
 
 			a.Spec.ApplicationSet = test.appSetField
 
@@ -383,7 +413,12 @@ func TestReconcileApplicationSet_Deployments_SpecOverride(t *testing.T) {
 func TestReconcileApplicationSet_ServiceAccount(t *testing.T) {
 	logf.SetLogger(ZapLogger(true))
 	a := makeTestArgoCD()
-	r := makeTestReconciler(t, a)
+	resObjs := []client.Object{a}
+	subresObjs := []client.Object{a}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
 
 	retSa, err := r.reconcileApplicationSetServiceAccount(a)
 	assert.NoError(t, err)
@@ -405,7 +440,13 @@ func TestReconcileApplicationSet_ServiceAccount(t *testing.T) {
 func TestReconcileApplicationSet_Role(t *testing.T) {
 	logf.SetLogger(ZapLogger(true))
 	a := makeTestArgoCD()
-	r := makeTestReconciler(t, a)
+
+	resObjs := []client.Object{a}
+	subresObjs := []client.Object{a}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
 
 	roleRet, err := r.reconcileApplicationSetRole(a)
 	assert.NoError(t, err)
@@ -451,7 +492,13 @@ func TestReconcileApplicationSet_Role(t *testing.T) {
 func TestReconcileApplicationSet_RoleBinding(t *testing.T) {
 	logf.SetLogger(ZapLogger(true))
 	a := makeTestArgoCD()
-	r := makeTestReconciler(t, a)
+
+	resObjs := []client.Object{a}
+	subresObjs := []client.Object{a}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
 
 	role := &rbacv1.Role{ObjectMeta: metav1.ObjectMeta{Name: "role-name"}}
 	sa := &corev1.ServiceAccount{ObjectMeta: metav1.ObjectMeta{Name: "sa-name"}}
@@ -490,7 +537,13 @@ func setProxyEnvVars(t *testing.T) {
 func TestReconcileApplicationSet_Service(t *testing.T) {
 	logf.SetLogger(ZapLogger(true))
 	a := makeTestArgoCD()
-	r := makeTestReconciler(t, a)
+
+	resObjs := []client.Object{a}
+	subresObjs := []client.Object{a}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
 
 	s := newServiceWithSuffix(common.ApplicationSetServiceNameSuffix, common.ApplicationSetServiceNameSuffix, a)
 
@@ -500,8 +553,19 @@ func TestReconcileApplicationSet_Service(t *testing.T) {
 
 func TestArgoCDApplicationSetCommand(t *testing.T) {
 	a := makeTestArgoCD()
+<<<<<<< HEAD
 	a.Spec.ApplicationSet = &v1alpha1.ArgoCDApplicationSet{}
 	r := makeTestReconciler(t, a)
+=======
+	a.Spec.ApplicationSet = &argoproj.ArgoCDApplicationSet{}
+
+	resObjs := []client.Object{a}
+	subresObjs := []client.Object{a}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
+>>>>>>> c8e4909 (fix: address CVE-2023-39325 (#1022))
 
 	baseCommand := []string{
 		"entrypoint.sh",
@@ -587,8 +651,19 @@ func TestArgoCDApplicationSetCommand(t *testing.T) {
 
 func TestArgoCDApplicationSetEnv(t *testing.T) {
 	a := makeTestArgoCD()
+<<<<<<< HEAD
 	a.Spec.ApplicationSet = &v1alpha1.ArgoCDApplicationSet{}
 	r := makeTestReconciler(t, a)
+=======
+	a.Spec.ApplicationSet = &argoproj.ArgoCDApplicationSet{}
+
+	resObjs := []client.Object{a}
+	subresObjs := []client.Object{a}
+	runtimeObjs := []runtime.Object{}
+	sch := makeTestReconcilerScheme(argoproj.AddToScheme)
+	cl := makeTestReconcilerClient(sch, resObjs, subresObjs, runtimeObjs)
+	r := makeTestReconciler(cl, sch)
+>>>>>>> c8e4909 (fix: address CVE-2023-39325 (#1022))
 
 	defaultEnv := []corev1.EnvVar{
 		{

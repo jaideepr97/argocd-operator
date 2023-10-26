@@ -6,6 +6,17 @@ metadata:
   creationTimestamp: null
   name: argocds.argoproj.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: argocd-operator-webhook-service
+          namespace: argocd-operator-system
+          path: /convert
+      conversionReviewVersions:
+      - v1alpha1
+      - v1beta1
   group: argoproj.io
   names:
     kind: ArgoCD
@@ -14,7 +25,11 @@ spec:
     singular: argocd
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - deprecated: true
+    deprecationWarning: ArgoCD v1alpha1 version is deprecated and will be converted
+      to v1beta1 automatically. Moving forward, please use v1beta1 as the ArgoCD API
+      version.
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ArgoCD is the Schema for the argocds API
@@ -583,10 +598,31 @@ spec:
                     description: Sharding contains the options for the Application
                       Controller sharding configuration.
                     properties:
+                      clustersPerShard:
+                        description: ClustersPerShard defines the maximum number of
+                          clusters managed by each argocd shard
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      dynamicScalingEnabled:
+                        description: DynamicScalingEnabled defines whether dynamic
+                          scaling should be enabled for Application Controller component
+                        type: boolean
                       enabled:
                         description: Enabled defines whether sharding should be enabled
                           on the Application Controller component.
                         type: boolean
+                      maxShards:
+                        description: MaxShards defines the maximum number of shards
+                          at any given point
+                        format: int32
+                        type: integer
+                      minShards:
+                        description: MinShards defines the minimum number of shards
+                          at any given point
+                        format: int32
+                        minimum: 1
+                        type: integer
                       replicas:
                         description: Replicas defines the number of replicas to run
                           in the Application controller shard.
@@ -595,7 +631,8 @@ spec:
                     type: object
                 type: object
               dex:
-                description: Dex defines the Dex server options for ArgoCD.
+                description: Deprecated field. Support dropped in v1beta1 version.
+                  Dex defines the Dex server options for ArgoCD.
                 properties:
                   config:
                     description: Config is the dex connector configuration.
@@ -6030,10 +6067,11 @@ spec:
                   type: object
                 type: array
               resourceCustomizations:
-                description: 'ResourceCustomizations customizes resource behavior.
-                  Keys are in the form: group/Kind. Please note that this is being
-                  deprecated in favor of ResourceHealthChecks, ResourceIgnoreDifferences,
-                  and ResourceActions.'
+                description: 'Deprecated field. Support dropped in v1beta1 version.
+                  ResourceCustomizations customizes resource behavior. Keys are in
+                  the form: group/Kind. Please note that this is being deprecated
+                  in favor of ResourceHealthChecks, ResourceIgnoreDifferences, and
+                  ResourceActions.'
                 type: string
               resourceExclusions:
                 description: ResourceExclusions is used to completely ignore entire
@@ -6647,7 +6685,8 @@ spec:
                         type: string
                     type: object
                   image:
-                    description: Image is the SSO container image.
+                    description: Deprecated field. Support dropped in v1beta1 version.
+                      Image is the SSO container image.
                     type: string
                   keycloak:
                     description: Keycloak contains the configuration for Argo CD keycloak
@@ -6722,8 +6761,9 @@ spec:
                       with Argo CD.
                     type: string
                   resources:
-                    description: Resources defines the Compute Resources required
-                      by the container for SSO.
+                    description: Deprecated field. Support dropped in v1beta1 version.
+                      Resources defines the Compute Resources required by the container
+                      for SSO.
                     properties:
                       claims:
                         description: "Claims lists the names of resources, defined
@@ -6772,10 +6812,12 @@ spec:
                         type: object
                     type: object
                   verifyTLS:
-                    description: VerifyTLS set to false disables strict TLS validation.
+                    description: Deprecated field. Support dropped in v1beta1 version.
+                      VerifyTLS set to false disables strict TLS validation.
                     type: boolean
                   version:
-                    description: Version is the SSO container image tag.
+                    description: Deprecated field. Support dropped in v1beta1 version.
+                      Version is the SSO container image tag.
                     type: string
                 type: object
               statusBadgeEnabled:
@@ -6839,16 +6881,6 @@ spec:
                   state. Failed: At least one of the  Argo CD applicationSet controller
                   component Pods had a failure. Unknown: The state of the Argo CD
                   applicationSet controller component could not be obtained.'
-                type: string
-              dex:
-                description: 'Dex is a simple, high-level summary of where the Argo
-                  CD Dex component is in its lifecycle. There are four possible dex
-                  values: Pending: The Argo CD Dex component has been accepted by
-                  the Kubernetes system, but one or more of the required resources
-                  have not been created. Running: All of the required Pods for the
-                  Argo CD Dex component are in a Ready state. Failed: At least one
-                  of the  Argo CD Dex component Pods had a failure. Unknown: The state
-                  of the Argo CD Dex component could not be obtained.'
                 type: string
               host:
                 description: Host is the hostname of the Ingress.
@@ -6914,13 +6946,6 @@ spec:
                   one of the  Argo CD server component Pods had a failure. Unknown:
                   The state of the Argo CD server component could not be obtained.'
                 type: string
-<<<<<<< HEAD
-              ssoConfig:
-                description: 'SSOConfig defines the status of SSO configuration. Success:
-                  Only one SSO provider is configured in CR. Failed: SSO configuration
-                  is illegal or more than one SSO providers are configured in CR.
-                  Unknown: The SSO configuration could not be obtained.'
-=======
               sso:
                 description: 'SSO is a simple, high-level summary of where the Argo
                   CD SSO(Dex/Keycloak) component is in its lifecycle. There are four
@@ -13724,7 +13749,6 @@ spec:
                   for the Argo CD SSO component are in a Ready state. Failed: At least
                   one of the  Argo CD SSO component Pods had a failure. Unknown: The
                   state of the Argo CD SSO component could not be obtained.'
->>>>>>> c8e4909 (fix: address CVE-2023-39325 (#1022))
                 type: string
             type: object
         type: object

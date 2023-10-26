@@ -31,6 +31,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
@@ -49,18 +50,49 @@ func ZapLogger(development bool) logr.Logger {
 	return zap.New(zap.UseDevMode(development))
 }
 
+<<<<<<< HEAD
 func makeTestReconciler(t *testing.T, objs ...runtime.Object) *ReconcileArgoCD {
 	s := scheme.Scheme
 	assert.NoError(t, argoprojv1alpha1.AddToScheme(s))
+=======
+type SchemeOpt func(*runtime.Scheme) error
+>>>>>>> c8e4909 (fix: address CVE-2023-39325 (#1022))
 
-	cl := fake.NewClientBuilder().WithScheme(s).WithRuntimeObjects(objs...).Build()
+func makeTestReconciler(client client.Client, sch *runtime.Scheme) *ReconcileArgoCD {
 	return &ReconcileArgoCD{
-		Client: cl,
-		Scheme: s,
+		Client: client,
+		Scheme: sch,
 	}
 }
 
+<<<<<<< HEAD
 type argoCDOpt func(*argoprojv1alpha1.ArgoCD)
+=======
+func makeTestReconcilerClient(sch *runtime.Scheme, resObjs, subresObjs []client.Object, runtimeObj []runtime.Object) client.Client {
+	client := fake.NewClientBuilder().WithScheme(sch)
+	if len(resObjs) > 0 {
+		client = client.WithObjects(resObjs...)
+	}
+	if len(subresObjs) > 0 {
+		client = client.WithStatusSubresource(subresObjs...)
+	}
+	if len(runtimeObj) > 0 {
+		client = client.WithRuntimeObjects(runtimeObj...)
+	}
+	return client.Build()
+}
+
+func makeTestReconcilerScheme(sOpts ...SchemeOpt) *runtime.Scheme {
+	s := scheme.Scheme
+	for _, opt := range sOpts {
+		_ = opt(s)
+	}
+
+	return s
+}
+
+type argoCDOpt func(*argoproj.ArgoCD)
+>>>>>>> c8e4909 (fix: address CVE-2023-39325 (#1022))
 
 func makeTestArgoCD(opts ...argoCDOpt) *argoprojv1alpha1.ArgoCD {
 	a := &argoprojv1alpha1.ArgoCD{
